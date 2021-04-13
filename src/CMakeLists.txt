@@ -4,8 +4,8 @@ project(mm_fireworks CXX)
 add_library(particles STATIC
 	./render_tasks/particles.hpp
 	./render_tasks/particles.cpp
-	./services/organizer_scene.hpp
-	./services/organizer_scene.cpp
+	#./services/organizer_scene.hpp
+	#./services/organizer_scene.cpp
 )
 
 target_link_libraries(particles
@@ -24,6 +24,8 @@ add_executable(fireworks1
 target_link_libraries(fireworks1
 	engine
 	common_components
+	organizer_scene
+
 	opengl_renderer_s
 	imgui_service
 	imgui_render_task
