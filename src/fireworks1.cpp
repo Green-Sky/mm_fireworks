@@ -20,6 +20,8 @@
 #include <glm/gtc/constants.hpp>
 #include <glm/trigonometric.hpp>
 
+#include <mm/random/srng.hpp>
+
 #include "render_tasks/particles.hpp"
 #include <mm/opengl/render_tasks/imgui.hpp>
 
@@ -33,7 +35,7 @@
 
 #include <mm/logger.hpp>
 #include <iostream>
-#include <random>
+//#include <random>
 #include <queue>
 #include <vector>
 
@@ -46,7 +48,7 @@ bool setup(MM::Engine& engine, const char* argv_0) {
 
 	sdl_ss.createGLWindow("Fireworks1", 1280, 720, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
-	engine.addService<MM::Services::FilesystemService>(argv_0, "mm_playground/fireworks1");
+	engine.addService<MM::Services::FilesystemService>(argv_0, "mm_fireworks1");
 	ENABLE_BAIL(engine.enableService<MM::Services::FilesystemService>());
 
 	engine.addService<MM::Services::ImGuiService>();
@@ -135,7 +137,7 @@ static const glm::vec3 color_list[color_list_size] {
 };
 
 static void spawn_fireworks_rocket(MM::Scene& scene) {
-	auto& mt = scene.ctx<std::mt19937>();
+	auto& mt = scene.ctx<MM::Random::SRNG>();
 
 	auto e = scene.create();
 	auto& fr = scene.emplace<Components::FireworksRocket>(e);
@@ -167,7 +169,7 @@ static void spawn_fireworks_rocket(MM::Scene& scene) {
 }
 
 static void spawn_fireworks_explosion_full(MM::Scene& scene, const glm::vec2& pos, const uint16_t amount, const float strenth, const glm::vec3& color) {
-	auto& mt = scene.ctx<std::mt19937>();
+	auto& mt = scene.ctx<MM::Random::SRNG>();
 
 	for (size_t i = 0; i < amount; i++) {
 		auto e = scene.create();
@@ -192,7 +194,7 @@ static void spawn_fireworks_explosion_full(MM::Scene& scene, const glm::vec2& po
 }
 
 static void spawn_fireworks_explosion_circle(MM::Scene& scene, const glm::vec2& pos, const uint16_t amount, const float strenth, const glm::vec3& color) {
-	auto& mt = scene.ctx<std::mt19937>();
+	auto& mt = scene.ctx<MM::Random::SRNG>();
 
 	const float dampening = 1.0f + random_float(mt, 0.f, 0.5f, 1000.f);
 
@@ -243,7 +245,7 @@ namespace Systems {
 	void particle_fireworks_rocket(
 		entt::registry& scene,
 		entt::view<entt::exclude_t<>, Components::FireworksRocket, Components::Particle2DPropulsion, const Components::Particle2DVel> view,
-		std::mt19937& mt, const MM::Components::TimeDelta& ft
+		MM::Random::SRNG& mt, const MM::Components::TimeDelta& ft
 	) {
 		view.each(
 			[&scene, &mt, &ft](
@@ -354,7 +356,8 @@ std::unique_ptr<MM::Scene> setup_sim(MM::Engine& engine) {
 
 	auto& org = scene.ctx_or_set<entt::organizer>();
 
-	scene.set<std::mt19937>(std::random_device{}());
+	//scene.set<MM::Random::SRNG>(std::random_device{}());
+	scene.set<MM::Random::SRNG>();
 
 	{
 		auto& cam = scene.set<MM::OpenGL::Camera3D>();

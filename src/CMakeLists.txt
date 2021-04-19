@@ -26,6 +26,8 @@ target_link_libraries(fireworks1
 	common_components
 	organizer_scene
 
+	random
+
 	opengl_renderer_s
 	imgui_service
 	imgui_render_task

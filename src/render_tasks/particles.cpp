@@ -87,8 +87,9 @@ void Particles::renderParticles(Services::OpenGLRenderer& rs, Engine& engine) {
 
 	rs.targets[target_fbo]->bind(FrameBufferObject::W);
 
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
+	glDisable(GL_DEPTH_TEST); // the simple Particles really dont need this
+	//glEnable(GL_DEPTH_TEST);
+	//glDepthFunc(GL_LESS);
 
 	_shader->bind();
 	_vertexBuffer->bind(GL_ARRAY_BUFFER);
