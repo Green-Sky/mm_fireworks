@@ -49,6 +49,8 @@ namespace MM::OpenGL::RenderTasks {
 			Particles(Engine& engine);
 			~Particles(void);
 
+			const char* name(void) override { return "Particles"; }
+
 			void renderParticles(Services::OpenGLRenderer& rs, Engine& engine);
 			void renderParticlesSprite(Services::OpenGLRenderer& rs, Engine& engine);
 			void render(Services::OpenGLRenderer& rs, Engine& engine) override;

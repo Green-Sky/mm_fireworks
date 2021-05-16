@@ -60,7 +60,7 @@ bool setup(MM::Engine& engine, const char* argv_0) {
 	engine.addService<MM::Services::ImGuiEngineTools>();
 	ENABLE_BAIL(engine.enableService<MM::Services::ImGuiEngineTools>());
 
-	engine.addService<MM::Services::OrganizerSceneService>();
+	engine.addService<MM::Services::OrganizerSceneService>(1.f/64.f);
 	ENABLE_BAIL(engine.enableService<MM::Services::OrganizerSceneService>());
 	engine.provide<MM::Services::SceneServiceInterface, MM::Services::OrganizerSceneService>();
 
