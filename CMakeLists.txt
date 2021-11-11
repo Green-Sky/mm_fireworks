@@ -41,7 +41,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 option(BUILD_TESTING "Enable testing with ctest." OFF)
 
 include("external/MushMachine/mm_options_and_defines.cmake")
-add_subdirectory("external/MushMachine")
+add_subdirectory("external/MushMachine" EXCLUDE_FROM_ALL)
 
 add_subdirectory(./src)
 
