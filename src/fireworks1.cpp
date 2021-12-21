@@ -244,7 +244,7 @@ namespace Systems {
 
 	void particle_fireworks_rocket(
 		entt::registry& scene,
-		entt::view<entt::exclude_t<>, Components::FireworksRocket, Components::Particle2DPropulsion, const Components::Particle2DVel> view,
+		entt::view<entt::get_t<Components::FireworksRocket, Components::Particle2DPropulsion, const Components::Particle2DVel>> view,
 		MM::Random::SRNG& mt, const MM::Components::TimeDelta& ft
 	) {
 		view.each(
@@ -302,14 +302,14 @@ namespace Systems {
 		});
 	}
 
-	void particle_2d_vel(entt::view<entt::exclude_t<>, Components::Particle2DVel> view, const MM::Components::TimeDelta& ft) {
+	void particle_2d_vel(entt::view<entt::get_t<Components::Particle2DVel>> view, const MM::Components::TimeDelta& ft) {
 		view.each([&ft](Components::Particle2DVel& p) {
 			p.vel -= p.vel * p.dampening * ft.tickDelta;
 			p.pos += p.vel * ft.tickDelta;
 		});
 	}
 
-	void particle_2d_propulsion(entt::view<entt::exclude_t<>, Components::Particle2DVel, const Components::Particle2DPropulsion> view, const MM::Components::TimeDelta& ft) {
+	void particle_2d_propulsion(entt::view<entt::get_t<Components::Particle2DVel, const Components::Particle2DPropulsion>> view, const MM::Components::TimeDelta& ft) {
 		view.each([&ft](Components::Particle2DVel& p, const Components::Particle2DPropulsion& prop) {
 			float tmp_dir = prop.dir + glm::pi<float>();
 			p.vel +=
@@ -318,13 +318,13 @@ namespace Systems {
 		});
 	}
 
-	void particle_2d_gravity(entt::view<entt::exclude_t<>, Components::Particle2DVel> view, const MM::Components::TimeDelta& ft) {
+	void particle_2d_gravity(entt::view<entt::get_t<Components::Particle2DVel>> view, const MM::Components::TimeDelta& ft) {
 		view.each([&ft](Components::Particle2DVel& p) {
 			p.vel += glm::vec2{0.f, -10.f} * ft.tickDelta;
 		});
 	}
 
-	void particle_life(entt::view<entt::exclude_t<>, Components::ParticleLifeTime> view, const MM::Components::TimeDelta& ft) {
+	void particle_life(entt::view<entt::get_t<Components::ParticleLifeTime>> view, const MM::Components::TimeDelta& ft) {
 		view.each([&ft](Components::ParticleLifeTime& lt) {
 			lt.time_remaining -= ft.tickDelta;
 		});

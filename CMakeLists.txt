@@ -14,6 +14,15 @@ if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "Debug")
 endif()
 
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+
+option(BUILD_TESTING "Enable testing with ctest." OFF)
+
+include("external/MushMachine/mm_options_and_defines.cmake")
+add_subdirectory("external/MushMachine" EXCLUDE_FROM_ALL)
+
 # bump up warning levels appropriately for clang, gcc & msvc
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
 	add_compile_options(
@@ -32,16 +41,6 @@ elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
 	endif()
 endif()
-
-
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-
-option(BUILD_TESTING "Enable testing with ctest." OFF)
-
-include("external/MushMachine/mm_options_and_defines.cmake")
-add_subdirectory("external/MushMachine" EXCLUDE_FROM_ALL)
 
 add_subdirectory(./src)
 
