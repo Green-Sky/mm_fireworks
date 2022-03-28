@@ -44,8 +44,6 @@ namespace MM::OpenGL::RenderTasks {
 		public:
 			glm::vec4 default_color {1.f, 1.f, 1.f, 1.f};
 
-			OpenGL::Camera3D default_cam;
-
 			Particles(Engine& engine);
 			~Particles(void);
 
@@ -56,12 +54,12 @@ namespace MM::OpenGL::RenderTasks {
 			void render(Services::OpenGLRenderer& rs, Engine& engine) override;
 
 		public:
-			const char* vertexPath = "shader/particles/vert.glsl";
-			const char* fragmentPath = "shader/particles/frag.glsl";
-			const char* vertexPathSprites = "shader/particles/sprites_vert.glsl";
-			const char* fragmentPathSprites = "shader/particles/sprites_frag.glsl";
+			const char* vertexPath {"shader/particles/vert.glsl"};
+			const char* fragmentPath {"shader/particles/frag.glsl"};
+			const char* vertexPathSprites {"shader/particles/sprites_vert.glsl"};
+			const char* fragmentPathSprites {"shader/particles/sprites_frag.glsl"};
 
-			std::string target_fbo = "display";
+			std::string target_fbo {"display"};
 
 		private:
 			void setupShaderFiles(void);

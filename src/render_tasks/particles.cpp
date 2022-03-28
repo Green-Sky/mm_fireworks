@@ -13,7 +13,6 @@
 #include <mm/services/scene_service_interface.hpp>
 #include <entt/entity/registry.hpp>
 
-#include <mm/components/transform2d.hpp>
 #include <mm/components/color.hpp>
 
 //#include "./spritesheet_renderable.hpp"
@@ -35,9 +34,6 @@
 namespace MM::OpenGL::RenderTasks {
 
 Particles::Particles(Engine& engine) {
-	default_cam.setOrthographic();
-	default_cam.updateView();
-
 	float vertices[] = {
 		-0.5f, 0.5f,
 		-0.5f, -0.5f,
@@ -75,14 +71,19 @@ void Particles::renderParticles(Services::OpenGLRenderer& rs, Engine& engine) {
 	auto* scene_ss = engine.tryService<MM::Services::SceneServiceInterface>();
 	// no scene
 	if (scene_ss == nullptr) {
-		return;
+		return; // nothing to render
 	}
 
 	auto& scene = scene_ss->getScene();
 
+	auto* cam = scene.try_ctx<Camera3D>();
+	if (!cam) {
+		return; // nothing to render
+	}
+
 	auto view = scene.view<::Components::Particle2DVel, ::Components::ParticleColor>();
 	if (view.begin() == view.end()) {
-		return;
+		return; // nothing to render
 	}
 
 	rs.targets[target_fbo]->bind(FrameBufferObject::W);
@@ -94,11 +95,6 @@ void Particles::renderParticles(Services::OpenGLRenderer& rs, Engine& engine) {
 	_shader->bind();
 	_vertexBuffer->bind(GL_ARRAY_BUFFER);
 	_vao->bind();
-
-	auto* cam = scene.try_ctx<Camera3D>();
-	if (!cam) {
-		cam = &default_cam;
-	}
 
 	auto vp = cam->getViewProjection();
 	_shader->setUniformMat4f("_VP", vp);

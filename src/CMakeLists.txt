@@ -4,8 +4,14 @@ project(mm_fireworks CXX)
 add_library(particles STATIC
 	./render_tasks/particles.hpp
 	./render_tasks/particles.cpp
-	#./services/organizer_scene.hpp
-	#./services/organizer_scene.cpp
+
+	./components/particles.hpp
+	./components/firework_particles.hpp
+
+	./systems/particles.hpp
+	./systems/particles.cpp
+	./systems/fireworks.hpp
+	./systems/fireworks.cpp
 )
 
 target_link_libraries(particles
@@ -13,6 +19,8 @@ target_link_libraries(particles
 	common_components
 	opengl_renderer_s
 	imgui_service
+
+	random
 )
 
 ##########################
