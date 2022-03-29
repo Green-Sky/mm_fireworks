@@ -141,14 +141,13 @@ bool setup(MM::Engine& engine, const char* argv_0) {
 		// TODO: on window size change, phases max(log(min(w, h), 2)-1, 1);
 		MM::OpenGL::setup_bloom(engine, "hdr_color", 7, 0.5);
 
-		rs.addRenderTask<MM::OpenGL::RenderTasks::ImGuiRT>(engine);
-
 		// not part of setup_bloom
 		auto& comp = rs.addRenderTask<MM::OpenGL::RenderTasks::Composition>(engine);
 		comp.color_tex = "hdr_color";
 		comp.bloom_tex = "blur_tmp1";
 		comp.target_fbo = "display";
 
+		rs.addRenderTask<MM::OpenGL::RenderTasks::ImGuiRT>(engine);
 	}
 
 	return true;
