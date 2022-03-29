@@ -7,25 +7,11 @@
 #include <glm/common.hpp>
 #include <glm/trigonometric.hpp>
 #include <glm/gtc/constants.hpp>
-
-// TODO: move to context
-static const size_t color_list_size = 11;
-static const glm::vec3 color_list[color_list_size] {
-	{1.f, 1.f, 1.f},
-	{1.f, 0.f, 0.f},
-	{0.f, 1.f, 0.f},
-	{0.f, 0.f, 1.f},
-	{1.f, 0.f, 1.f},
-	{0.f, 1.f, 1.f},
-	{1.f, 1.f, 0.f},
-	{0.6f, 1.f, 0.f},
-	{0.8f, 0.8f, 1.f},
-	{0.8f, 0.0f, 1.f},
-	{0.3f, 0.9f, 0.3f},
-};
+#include <vector>
 
 void spawn_fireworks_rocket(MM::Scene& scene) {
 	auto& rng = scene.ctx<MM::Random::SRNG>();
+	const auto& color_list = scene.ctx<Components::ColorList>();
 
 	auto e = scene.create();
 	auto& fr = scene.emplace<Components::FireworksRocket>(e);
@@ -38,8 +24,8 @@ void spawn_fireworks_rocket(MM::Scene& scene) {
 	fr.explosion.type = Components::FireworksExplosion::exp_type_t(
 		rng.minMax(0, Components::FireworksExplosion::exp_type_t_COUNT-1)
 	);
-	fr.explosion.color = color_list[rng.minMax(0, int64_t(color_list_size)-1)];
-	fr.explosion.color2 = color_list[rng.minMax(0, int64_t(color_list_size)-1)];
+	fr.explosion.color = color_list.list[rng.minMax(0, color_list.list.size()-1)];
+	fr.explosion.color2 = color_list.list[rng.minMax(0, color_list.list.size()-1)];
 
 	auto& p2dv = scene.emplace<Components::Particle2DVel>(e);
 	//p2dv.pos = {0.f, -70.f};

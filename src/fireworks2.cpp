@@ -13,8 +13,14 @@
 #include <mm/services/organizer_scene.hpp>
 #include <mm/components/time_delta.hpp>
 
+#include <mm/opengl/render_tasks/clear.hpp>
 #include "./render_tasks/particles.hpp"
+#include <mm/opengl/bloom.hpp>
+#include <mm/opengl/render_tasks/composition.hpp>
 #include <mm/opengl/render_tasks/imgui.hpp>
+
+#include <mm/opengl/fbo_builder.hpp>
+#include <mm/opengl/texture_loader.hpp>
 
 #include <entt/entity/registry.hpp>
 #include <entt/entity/organizer.hpp>
@@ -41,9 +47,9 @@ bool setup(MM::Engine& engine, const char* argv_0) {
 	);
 	ENABLE_BAIL(engine.enableService<MM::Services::SDLService>());
 
-	sdl_ss.createGLWindow("Fireworks1", 1280, 720, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+	sdl_ss.createGLWindow("Fireworks2", 1280, 720, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
-	engine.addService<MM::Services::FilesystemService>(argv_0, "mm_fireworks1");
+	engine.addService<MM::Services::FilesystemService>(argv_0, "mm_fireworks2");
 	ENABLE_BAIL(engine.enableService<MM::Services::FilesystemService>());
 
 	engine.addService<MM::Services::ImGuiService>();
@@ -67,12 +73,88 @@ bool setup(MM::Engine& engine, const char* argv_0) {
 	// enable after renderer
 	ENABLE_BAIL(engine.enableService<MM::Services::ImGuiSceneToolsService>());
 
-	rs.addRenderTask<MM::OpenGL::RenderTasks::Particles>(engine);
-	rs.addRenderTask<MM::OpenGL::RenderTasks::ImGuiRT>(engine);
+	{ // rendering
+		using namespace entt::literals;
+		{ // textures
+			auto& rm_t = MM::ResourceManager<MM::OpenGL::Texture>::ref();
+			auto [w, h] = engine.getService<MM::Services::SDLService>().getWindowSize();
+
+			const float render_scale = 1.f;
+
+			// depth
+#ifdef MM_OPENGL_3_GLES
+			rm_t.reload<MM::OpenGL::TextureLoaderEmpty>(
+				"depth",
+				GL_DEPTH_COMPONENT24, // d16 is the onlyone for gles 2 (TODO: test for 3)
+				w, h,
+				GL_DEPTH_COMPONENT, GL_UNSIGNED_INT
+			);
+#else
+			rm_t.reload<MM::OpenGL::TextureLoaderEmpty>(
+				"depth",
+				GL_DEPTH_COMPONENT32F, // TODO: stencil?
+				w, h,
+				GL_DEPTH_COMPONENT, GL_FLOAT
+			);
+#endif
+
+
+			// hdr color gles3 / webgl2
+			rm_t.reload<MM::OpenGL::TextureLoaderEmpty>(
+				"hdr_color",
+				GL_RGBA16F,
+				w * render_scale, h * render_scale,
+				GL_RGBA,
+				GL_HALF_FLOAT
+			);
+			{ // filter
+				rm_t.get("hdr_color"_hs)->bind(0);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			}
+
+			// fbo
+			rs.targets["game_view"] = MM::OpenGL::FBOBuilder::start()
+				.attachTexture(rm_t.get("hdr_color"_hs), GL_COLOR_ATTACHMENT0)
+				.attachTexture(rm_t.get("depth"_hs), GL_DEPTH_ATTACHMENT)
+				.setResizeFactors(render_scale, render_scale)
+				.setResize(true)
+				.finish();
+			assert(rs.targets["game_view"]);
+		}
+
+		// clear
+		auto& clear_opaque = rs.addRenderTask<MM::OpenGL::RenderTasks::Clear>(engine);
+		clear_opaque.target_fbo = "game_view";
+		// clears all color attachments
+		clear_opaque.r = 0.f;
+		clear_opaque.g = 0.f;
+		clear_opaque.b = 0.f;
+		clear_opaque.a = 1.f;
+		clear_opaque.mask = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT;
+
+		rs.addRenderTask<MM::OpenGL::RenderTasks::Particles>(engine).target_fbo = "game_view";
+
+		// TODO: on window size change, phases max(log(min(w, h), 2)-1, 1);
+		MM::OpenGL::setup_bloom(engine, "hdr_color", 7, 0.5);
+
+		rs.addRenderTask<MM::OpenGL::RenderTasks::ImGuiRT>(engine);
+
+		// not part of setup_bloom
+		auto& comp = rs.addRenderTask<MM::OpenGL::RenderTasks::Composition>(engine);
+		comp.color_tex = "hdr_color";
+		comp.bloom_tex = "blur_tmp1";
+		comp.target_fbo = "display";
+
+	}
 
 	return true;
 }
 
+// TODO: extract this
 std::unique_ptr<MM::Scene> setup_sim(MM::Engine& engine) {
 	auto new_scene = std::make_unique<MM::Scene>();
 	auto& scene = *new_scene;
@@ -90,7 +172,12 @@ std::unique_ptr<MM::Scene> setup_sim(MM::Engine& engine) {
 		cam.updateView();
 	}
 
-	scene.set<Components::ColorList>();
+	{
+		auto& cl = scene.set<Components::ColorList>();
+		for (auto& col : cl.list) {
+			col *= 8.f;
+		}
+	}
 
 	org.emplace<Systems::particle_fireworks_rocket>("particle_fireworks_rocket");
 	org.emplace<Systems::particle_2d_propulsion>("particle_2d_propulsion");

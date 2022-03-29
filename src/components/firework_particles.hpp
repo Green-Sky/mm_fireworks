@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/vec3.hpp>
+#include <vector>
 
 namespace Components {
 
@@ -28,6 +29,22 @@ namespace Components {
 
 		float explosion_timer = 1.f;
 		FireworksExplosion explosion;
+	};
+
+	struct ColorList {
+		std::vector<glm::vec3> list {
+			{1.f, 1.f, 1.f},
+			{1.f, 0.f, 0.f},
+			{0.f, 1.f, 0.f},
+			{0.f, 0.f, 1.f},
+			{1.f, 0.f, 1.f},
+			{0.f, 1.f, 1.f},
+			{1.f, 1.f, 0.f},
+			{0.6f, 1.f, 0.f},
+			{0.8f, 0.8f, 1.f},
+			{0.8f, 0.0f, 1.f},
+			{0.3f, 0.9f, 0.3f},
+		};
 	};
 
 } // Components
