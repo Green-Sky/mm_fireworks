@@ -10,8 +10,8 @@
 #include <vector>
 
 void spawn_fireworks_rocket(MM::Scene& scene) {
-	auto& rng = scene.ctx<MM::Random::SRNG>();
-	const auto& color_list = scene.ctx<Components::ColorList>();
+	auto& rng = scene.ctx().at<MM::Random::SRNG>();
+	const auto& color_list = scene.ctx().at<Components::ColorList>();
 
 	auto e = scene.create();
 	auto& fr = scene.emplace<Components::FireworksRocket>(e);
@@ -43,7 +43,7 @@ void spawn_fireworks_rocket(MM::Scene& scene) {
 }
 
 void spawn_fireworks_explosion_full(MM::Scene& scene, const glm::vec2& pos, const uint16_t amount, const float strenth, const glm::vec3& color) {
-	auto& rng = scene.ctx<MM::Random::SRNG>();
+	auto& rng = scene.ctx().at<MM::Random::SRNG>();
 
 	for (size_t i = 0; i < amount; i++) {
 		auto e = scene.create();
@@ -67,7 +67,7 @@ void spawn_fireworks_explosion_full(MM::Scene& scene, const glm::vec2& pos, cons
 }
 
 void spawn_fireworks_explosion_circle(MM::Scene& scene, const glm::vec2& pos, const uint16_t amount, const float strenth, const glm::vec3& color) {
-	auto& rng = scene.ctx<MM::Random::SRNG>();
+	auto& rng = scene.ctx().at<MM::Random::SRNG>();
 
 	const float dampening = 1.0f + rng.zeroToOne() * 0.5f;
 

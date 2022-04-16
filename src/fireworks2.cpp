@@ -157,22 +157,22 @@ bool setup(MM::Engine& engine, const char* argv_0) {
 std::unique_ptr<MM::Scene> setup_sim(MM::Engine& engine) {
 	auto new_scene = std::make_unique<MM::Scene>();
 	auto& scene = *new_scene;
-	scene.set<MM::Engine&>(engine);
+	scene.ctx().emplace<MM::Engine&>(engine);
 
-	auto& org = scene.ctx_or_set<entt::organizer>();
+	auto& org = scene.ctx().emplace<entt::organizer>();
 
-	//scene.set<MM::Random::SRNG>(std::random_device{}());
-	scene.set<MM::Random::SRNG>();
+	//scene.ctx().emplace<MM::Random::SRNG>(std::random_device{}());
+	scene.ctx().emplace<MM::Random::SRNG>();
 
 	{
-		auto& cam = scene.set<MM::OpenGL::Camera3D>();
+		auto& cam = scene.ctx().emplace<MM::OpenGL::Camera3D>();
 		cam.horizontalViewPortSize = 300.f;
 		cam.setOrthographic();
 		cam.updateView();
 	}
 
 	{
-		auto& cl = scene.set<Components::ColorList>();
+		auto& cl = scene.ctx().emplace<Components::ColorList>();
 		for (auto& col : cl.list) {
 			col *= 8.f;
 		}

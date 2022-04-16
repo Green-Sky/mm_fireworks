@@ -76,9 +76,8 @@ void Particles::renderParticles(Services::OpenGLRenderer& rs, Engine& engine) {
 
 	auto& scene = scene_ss->getScene();
 
-	auto* cam = scene.try_ctx<Camera3D>();
-	if (!cam) {
-		return; // nothing to render
+	if (!scene.ctx().contains<Camera3D>()) {
+		return; // nothing to draw
 	}
 
 	auto view = scene.view<::Components::Particle2DVel, ::Components::ParticleColor>();
@@ -96,7 +95,8 @@ void Particles::renderParticles(Services::OpenGLRenderer& rs, Engine& engine) {
 	_vertexBuffer->bind(GL_ARRAY_BUFFER);
 	_vao->bind();
 
-	auto vp = cam->getViewProjection();
+	Camera3D& cam = scene.ctx().at<Camera3D>();
+	auto vp = cam.getViewProjection();
 	_shader->setUniformMat4f("_VP", vp);
 
 	const size_t size_hint = view.size_hint();
